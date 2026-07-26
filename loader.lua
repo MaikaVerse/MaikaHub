@@ -1,3 +1,9 @@
+if game.PlaceId ~= 93978595733734 then
+    warn("[Maika Hub] Place ID mismatch. Loader terminated.")
+    print("This script is exclusively built for Violence District (PlaceID: 93978595733734)")
+    return
+end
+
 local HttpService = game:GetService("HttpService")
 local RbxAnalytics = game:GetService("RbxAnalyticsService")
 local Players = game:GetService("Players")
