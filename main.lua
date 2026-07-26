@@ -11,28 +11,32 @@ if getgenv().ProjectESP_Library then
     task.wait(0.1)
 end
 
-if isfile and readfile then
-    local libs = {
-        "lib/esp.lua",
-        "lib/skillcheck.lua",
-        "lib/silentaim.lua",
-        "lib/veilaim.lua",
-        "lib/autoparry.lua",
-        "lib/fastvault.lua",
-        "lib/autosprint.lua",
-        "lib/genbypass.lua",
-        "lib/stalker.lua"
-    }
-    
-    for _, libPath in ipairs(libs) do
-        local success, err = pcall(function()
-            loadstring(readfile(libPath))()
-        end)
-        if not success then
-            warn("[Maika Hub] Failed to load " .. libPath .. " | Error: " .. tostring(err))
-        end
+-- ========================================================
+-- [DIPERBAIKI] AUTO-DOWNLOAD LIBRARIES DARI GITHUB
+-- ========================================================
+local myRepo = "https://raw.githubusercontent.com/MaikaVerse/MaikaHub/refs/heads/main/"
+local libs = {
+    "lib/esp.lua",
+    "lib/skillcheck.lua",
+    "lib/silentaim.lua",
+    "lib/veilaim.lua",
+    "lib/autoparry.lua",
+    "lib/fastvault.lua",
+    "lib/autosprint.lua",
+    "lib/genbypass.lua",
+    "lib/stalker.lua"
+}
+
+for _, libPath in ipairs(libs) do
+    local success, err = pcall(function()
+        loadstring(game:HttpGet(myRepo .. libPath))()
+    end)
+    if not success then
+        warn("[Maika Hub] Failed to load " .. libPath .. " | Error: " .. tostring(err))
     end
 end
+-- ========================================================
+
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
