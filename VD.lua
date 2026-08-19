@@ -366,7 +366,15 @@ local function LoadMainScript()
                 Time = 5,
             })
             task.wait(1)
-            TeleportService:TeleportToPlaceInstance(targetPlaceId, selectedServer.id, LocalPlayer)
+            local tpSuccess, tpErr = pcall(function()
+                TeleportService:TeleportToPlaceInstance(targetPlaceId, selectedServer.id, LocalPlayer)
+            end)
+            if not tpSuccess then
+                logInfo("TELEPORT", "Immediate teleport error:", tostring(tpErr))
+                isHopping = false
+                task.wait(3)
+                if CariServer then CariServer() end
+            end
         else
             local sHop, autoHop = pcall(function() return Toggles.AutoHop.Value end)
             if sHop and autoHop then
@@ -404,7 +412,8 @@ local function LoadMainScript()
                 Time = 5,
             })
             task.wait(5)
-            CariServer()
+            isHopping = false
+            if CariServer then CariServer() end
         end
     end)
 
@@ -417,6 +426,8 @@ local function LoadMainScript()
                 if char and char:FindFirstChild("HumanoidRootPart") then
                     char.HumanoidRootPart.CFrame = finishLine.CFrame
                     logInfo("HUB", "Successfully auto-teleported to Finishline!")
+                    
+                    -- Webhook notification
                     local curLevel = LocalPlayer:GetAttribute("Level") or 0
                     local curScrews = LocalPlayer:GetAttribute("Screws") or 0
                     local curGears = LocalPlayer:GetAttribute("Gears") or 0
@@ -430,9 +441,8 @@ local function LoadMainScript()
                     
                     local sHop, autoHop = pcall(function() return Toggles.AutoHop.Value end)
                     if sHop and autoHop then
-                        Library:Notify({Title = "Auto Escape", Description = "Success! Searching for a new server in 3 seconds...", Icon = "check", Time = 3})
-                        task.wait(3)
-                        CariServer()
+                        Library:Notify({Title = "Auto Escape", Description = "Success! Searching for a new server...", Icon = "check", Time = 3})
+                        task.spawn(CariServer)
                     else
                         Library:Notify({Title = "Auto Escape", Description = "Successfully teleported to the Finishline!", Icon = "check", Time = 5})
                     end
@@ -673,6 +683,10 @@ local function LoadMainScript()
     SaveManager:BuildConfigSection(Tabs.Settings)
     ThemeManager:AddThemeOptions(Tabs.Settings)
 end
+
+-- ==========================================
+-- KEY SYSTEM UI
+-- ==========================================
 local function InitKeySystem()
     local savedKey = ""
     if isfile and readfile and isfile(KeyFile) then
