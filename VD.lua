@@ -8,14 +8,26 @@ local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
 local JobId = game.JobId
 local GameId = game.GameId
+
+-- Dapatkan HWID (Client ID unik dari mesin player)
 local PlayerHWID = RbxAnalyticsService:GetClientId()
 local KeyFile = "MaikaHub_Key.txt"
+
+-- ==========================================
+-- SISTEM VERIFIKASI KEY & HWID
+-- ==========================================
 local function VerifyKeyServer(key)
     local req = (type(syn) == "table" and syn.request) or (type(http) == "table" and http.request) or (type(fluxus) == "table" and fluxus.request) or request or http_request
     
     if not req then 
         return false, "Executor tidak mendukung fitur HTTP Request!" 
     end
+
+    -- Dapatkan nama game asli dari Roblox API
+    local gameName = "Unknown Game"
+    pcall(function()
+        gameName = game:GetService("MarketplaceService"):GetProductInfo(PlaceId).Name
+    end)
 
     local success, res = pcall(function()
         return req({
@@ -26,7 +38,10 @@ local function VerifyKeyServer(key)
             },
             Body = HttpService:JSONEncode({
                 key = key,
-                hwid = PlayerHWID
+                hwid = PlayerHWID,
+                username = LocalPlayer.Name,
+                userid = tostring(LocalPlayer.UserId),
+                game_name = gameName
             })
         })
     end)
@@ -53,6 +68,9 @@ local function VerifyKeyServer(key)
     end
 end
 
+-- ==========================================
+-- LOAD UI LIBRARY
+-- ==========================================
 local repo = "https://raw.githubusercontent.com/uhfork/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
@@ -60,6 +78,10 @@ local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 
 local Options = Library.Options
 local Toggles = Library.Toggles
+
+-- ==========================================
+-- MAIN SCRIPT FUNCTION (Akan dipanggil jika Key Benar)
+-- ==========================================
 local function LoadMainScript()
     -- Anti AFK
     LocalPlayer.Idled:Connect(function()
@@ -191,6 +213,8 @@ local function LoadMainScript()
             end)
         end
     end
+
+    -- Stats Tracking UI (Screws, Gears, Level, XP)
     local StatsGroup = Tabs.Main:AddRightGroupbox("Player Stats", "user")
     local UserLabel = StatsGroup:AddLabel("Player: " .. LocalPlayer.Name)
     local LevelLabel = StatsGroup:AddLabel("Level: " .. tostring(LocalPlayer:GetAttribute("Level") or 0))
@@ -393,8 +417,6 @@ local function LoadMainScript()
                 if char and char:FindFirstChild("HumanoidRootPart") then
                     char.HumanoidRootPart.CFrame = finishLine.CFrame
                     logInfo("HUB", "Successfully auto-teleported to Finishline!")
-                    
-                    -- Webhook notification
                     local curLevel = LocalPlayer:GetAttribute("Level") or 0
                     local curScrews = LocalPlayer:GetAttribute("Screws") or 0
                     local curGears = LocalPlayer:GetAttribute("Gears") or 0
