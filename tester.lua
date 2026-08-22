@@ -1,4 +1,3 @@
---1
 local UserInputService = game:GetService("UserInputService")
 getgenv().MaikaHub_IsMobile = UserInputService.TouchEnabled
 
@@ -227,12 +226,6 @@ local function LoadMainScript()
         Text = "Skillcheck Mode",
         Tooltip = "Legit: Random hit inside goal. Blatant: Instant hit at goal start."
     })
-    GenGroup:AddToggle("Genrush", {
-        Text = "Genrush",
-        Default = false,
-        Tooltip = "Exploit server stacking to repair exceptionally fast"
-    })
-
 
 
     local EspGroup = Tabs.Visuals:AddLeftGroupbox("Player ESP", "eye")
@@ -1151,13 +1144,47 @@ local function LoadMainScript()
                                     if not isPressing then
                                         isPressing = true
                                         task.spawn(function()
-                                            pcall(function()
-                                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                                                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                                                task.wait(0.05)
-                                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-                                                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-                                            end)
+                                            local isMobile = getgenv().MaikaHub_IsMobile
+                                            if not isMobile then
+                                                pcall(function()
+                                                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+                                                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                                                    task.wait(0.05)
+                                                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+                                                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                                                end)
+                                            else
+                                                local pGui = LocalPlayer:FindFirstChild("PlayerGui")
+                                                if pGui then
+                                                    local survMob = pGui:FindFirstChild("Survivor-mob")
+                                                    if survMob then
+                                                        local controls = survMob:FindFirstChild("Controls")
+                                                        if controls then
+                                                            local btns = {controls:FindFirstChild("Gui-mob"), controls:FindFirstChild("Action")}
+                                                            for _, btn in ipairs(btns) do
+                                                                if btn then
+                                                                    if firesignal then
+                                                                        pcall(function() firesignal(btn.MouseButton1Down) end)
+                                                                        task.wait(0.05)
+                                                                        pcall(function() firesignal(btn.MouseButton1Click) end)
+                                                                        pcall(function() firesignal(btn.MouseButton1Up) end)
+                                                                    elseif getconnections then
+                                                                        pcall(function()
+                                                                            for _, conn in ipairs(getconnections(btn.MouseButton1Down)) do
+                                                                                task.spawn(function() pcall(conn.Function) end)
+                                                                            end
+                                                                            task.wait(0.05)
+                                                                            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
+                                                                                task.spawn(function() pcall(conn.Function) end)
+                                                                            end
+                                                                        end)
+                                                                    end
+                                                                end
+                                                            end
+                                                        end
+                                                    end
+                                                end
+                                            end
                                             
                                             task.wait(0.1)
                                             isPressing = false
