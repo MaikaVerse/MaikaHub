@@ -1,4 +1,3 @@
---11
 local UserInputService = game:GetService("UserInputService")
 getgenv().MaikaHub_IsMobile = UserInputService.TouchEnabled
 
@@ -1163,7 +1162,7 @@ local function LoadMainScript()
                                                         if mobGui then
                                                             local controls = mobGui:FindFirstChild("Controls")
                                                             if controls then
-                                                                local actionBtn = controls:FindFirstChild("Action")
+                                                                local actionBtn = controls:FindFirstChild("action") or controls:FindFirstChild("Action")
                                                                 if actionBtn then
                                                                     pcall(function() actionBtn:Activate() end)
                                                                     
