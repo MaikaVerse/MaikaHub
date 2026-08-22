@@ -1,3 +1,4 @@
+--11
 local UserInputService = game:GetService("UserInputService")
 getgenv().MaikaHub_IsMobile = UserInputService.TouchEnabled
 
@@ -1156,25 +1157,32 @@ local function LoadMainScript()
                                             else
                                                 local pGui = LocalPlayer:FindFirstChild("PlayerGui")
                                                 if pGui then
-                                                    local survMob = pGui:FindFirstChild("Survivor-mob")
-                                                    if survMob then
-                                                        local controls = survMob:FindFirstChild("Controls")
-                                                        if controls then
-                                                            local btns = {controls:FindFirstChild("Gui-mob"), controls:FindFirstChild("Action")}
-                                                            for _, btn in ipairs(btns) do
-                                                                if btn then
+                                                    local mobGuis = {"Survivor-mob", "Spectator-mob", "Spectatot-mob"}
+                                                    for _, guiName in ipairs(mobGuis) do
+                                                        local mobGui = pGui:FindFirstChild(guiName)
+                                                        if mobGui then
+                                                            local controls = mobGui:FindFirstChild("Controls")
+                                                            if controls then
+                                                                local actionBtn = controls:FindFirstChild("Action")
+                                                                if actionBtn then
+                                                                    pcall(function() actionBtn:Activate() end)
+                                                                    
                                                                     if firesignal then
-                                                                        pcall(function() firesignal(btn.MouseButton1Down) end)
+                                                                        pcall(function() firesignal(actionBtn.MouseButton1Down) end)
                                                                         task.wait(0.05)
-                                                                        pcall(function() firesignal(btn.MouseButton1Click) end)
-                                                                        pcall(function() firesignal(btn.MouseButton1Up) end)
+                                                                        pcall(function() firesignal(actionBtn.MouseButton1Click) end)
+                                                                        pcall(function() firesignal(actionBtn.MouseButton1Up) end)
+                                                                        pcall(function() firesignal(actionBtn.Activated) end)
                                                                     elseif getconnections then
                                                                         pcall(function()
-                                                                            for _, conn in ipairs(getconnections(btn.MouseButton1Down)) do
+                                                                            for _, conn in ipairs(getconnections(actionBtn.MouseButton1Down)) do
                                                                                 task.spawn(function() pcall(conn.Function) end)
                                                                             end
                                                                             task.wait(0.05)
-                                                                            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
+                                                                            for _, conn in ipairs(getconnections(actionBtn.MouseButton1Click)) do
+                                                                                task.spawn(function() pcall(conn.Function) end)
+                                                                            end
+                                                                            for _, conn in ipairs(getconnections(actionBtn.Activated)) do
                                                                                 task.spawn(function() pcall(conn.Function) end)
                                                                             end
                                                                         end)
